@@ -1,25 +1,37 @@
 // Imports
 const AWS = require('aws-sdk')
 
-AWS.config.update({ region: '/* TODO: Add your region */' })
+AWS.config.update({ region: 'eu-central-1' })
 
 const ec2 = new AWS.EC2()
-// TODO: Create an rds object
+const rds = new AWS.RDS()
 const dbName = 'user'
 
 createSecurityGroup(dbName)
-.then(sgId => createDatabase(dbName, sgId))
-.then(data => console.log(data))
+  .then(sgId => createDatabase(dbName, sgId))
+  .then(data => console.log(data))
 
-function createDatabase (dbName, sgId) {
-  // TODO: Create the params object
+function createDatabase(dbName, sgId) {
+  const params = {
+    AllocatedStorage: 5,
+    DBInstanceClass: 'db.t2.micro',
+    DBInstanceIdentifier: dbName,
+    Engine: 'mysql',
+    DBName: dbName,
+    VpcSecurityGroupIds: [sgId],
+    MasterUsername: 'admin',
+    MasterUserPassword: 'mypassword'
+  }
 
   return new Promise((resolve, reject) => {
-    // TODO: Create the db instance
+    rds.createDBInstance(params, (err, data) => {
+      if (err) reject(err)
+      else resolve(data)
+    })
   })
 }
 
-function createSecurityGroup (dbName) {
+function createSecurityGroup(dbName) {
   const params = {
     Description: `security group for ${dbName}`,
     GroupName: `${dbName}-db-sg`

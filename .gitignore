@@ -12,3 +12,5 @@ public/images/*-original.png
 
 # Serverless directories
 .serverless
+
+**/*.zip
