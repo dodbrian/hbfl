@@ -2,7 +2,7 @@ const AWS = require('aws-sdk')
 
 const RACES_TABLE = 'races'
 
-AWS.config.update({ region: '/* TODO: Add your region */' })
+AWS.config.update({ region: 'eu-central-1' })
 
 const client = new AWS.DynamoDB.DocumentClient()
 
@@ -18,7 +18,7 @@ exports.handler = (event, context, callback) => {
     .catch(err => callback(err))
 }
 
-function putResults (result) {
+function putResults(result) {
   return new Promise((resolve, reject) => {
     const getParams = {
       TableName: RACES_TABLE,

@@ -2,25 +2,25 @@
 const AWS = require('aws-sdk')
 const helpers = require('./helpers')
 
-AWS.config.update({ region: '/* TODO: Add your region */' })
+AWS.config.update({ region: 'eu-central-1' })
 
 // Declare local variables
 const lambda = new AWS.Lambda()
 const functionName = 'hamster-kinesis-stream-consumer'
-const kinesisArn = '/* TODO: Add your kinesis ARN */'
+const kinesisArn = 'arn:aws:kinesis:eu-central-1:318731036434:stream/hamster-race-results'
 let roleArn
 
 helpers.createLambdaKinesisRole()
-.then((arn) => {
-  roleArn = arn
-  return helpers.zipLambdaFile()
-})
-.then((codeBuffer) => createLambda(roleArn, functionName, codeBuffer))
-.then(() => createTrigger(kinesisArn, functionName))
-.then(data => console.log(data))
-.catch(err => console.error(err))
+  .then((arn) => {
+    roleArn = arn
+    return helpers.zipLambdaFile()
+  })
+  .then((codeBuffer) => createLambda(roleArn, functionName, codeBuffer))
+  .then(() => createTrigger(kinesisArn, functionName))
+  .then(data => console.log(data))
+  .catch(err => console.error(err))
 
-function createLambda (roleArn, lambdaName, zippedCode) {
+function createLambda(roleArn, lambdaName, zippedCode) {
   const params = {
     Code: {
       ZipFile: zippedCode
@@ -43,8 +43,13 @@ function createLambda (roleArn, lambdaName, zippedCode) {
   })
 }
 
-function createTrigger (kinesisArn, lambdaName) {
-  // TODO: Create params const for trigger
+function createTrigger(kinesisArn, lambdaName) {
+  const params = {
+    EventSourceArn: kinesisArn,
+    FunctionName: lambdaName,
+    StartingPosition: 'LATEST',
+    BatchSize: 100
+  }
 
   return new Promise((resolve, reject) => {
     lambda.createEventSourceMapping(params, (err, data) => {
